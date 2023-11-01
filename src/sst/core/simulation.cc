@@ -360,6 +360,7 @@ Simulation_impl::prepareLinks(ConfigGraph& graph, const RankInfo& myRank, SimTim
                 Link* link      = new Link(clink->order);
                 link->pair_link = link;
                 link->setLatency(clink->latency[0]);
+                link->setDropRate(clink->drop_rate[0]);
 
                 // Add this link to the appropriate LinkMap
                 ComponentInfo* cinfo = compInfoMap.getByID(clink->component[0]);
@@ -374,8 +375,10 @@ Simulation_impl::prepareLinks(ConfigGraph& graph, const RankInfo& myRank, SimTim
                 LinkPair lp(clink->order);
 
                 lp.getLeft()->setLatency(clink->latency[0]);
+                lp.getLeft()->setDropRate(clink->drop_rate[0]);
                 lp.getRight()->setLatency(clink->latency[1]);
-
+                lp.getRight()->setDropRate(clink->drop_rate[1]);
+                
                 // Add this link to the appropriate LinkMap
                 ComponentInfo* cinfo = compInfoMap.getByID(clink->component[0]);
                 if ( cinfo == nullptr ) {
@@ -403,6 +406,7 @@ Simulation_impl::prepareLinks(ConfigGraph& graph, const RankInfo& myRank, SimTim
 
             Link* link = new Link(clink->order);
             link->setLatency(clink->latency[local]);
+            link->setDropRate(clink->drop_rate[local]);
 
             // Need to mutex to access cross_thread_links
             {
@@ -444,7 +448,9 @@ Simulation_impl::prepareLinks(ConfigGraph& graph, const RankInfo& myRank, SimTim
             LinkPair lp(clink->order);
 
             lp.getLeft()->setLatency(clink->latency[local]);
+            lp.getLeft()->setDropRate(clink->drop_rate[local]);
             lp.getRight()->setLatency(0);
+            lp.getRight()->setDropRate(0);
             lp.getRight()->setDefaultTimeBase(minPartToTC(1));
 
             // Add this link to the appropriate LinkMap for the local component

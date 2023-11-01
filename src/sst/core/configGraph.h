@@ -51,6 +51,7 @@ public:
     std::string   port[2];        /*!< Names of the connected ports */
     SimTime_t     latency[2];     /*!< Latency from each side */
     std::string   latency_str[2]; /*!< Temp string holding latency */
+    double        drop_rate[2];   /*!< Drop rate >*/
 
     LinkId_t order;  /*!< Number of components currently referring to this Link.  After graph construction, it will
                        be repurposed to hold the enforce_order value */
@@ -449,7 +450,7 @@ public:
     /** Add a Link to a Component on a given Port */
     void addLink(
         ComponentId_t comp_id, const std::string& link_name, const std::string& port, const std::string& latency_str,
-        bool no_cut = false);
+        bool no_cut = false, double drop_rate = 0.0);
 
     /** Set a Link to be no-cut */
     void setLinkNoCut(const std::string& link_name);

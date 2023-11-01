@@ -39,11 +39,13 @@ linkInit(LinkPy_t* self, PyObject* args, PyObject* UNUSED(kwds))
 {
     char*       name = nullptr;
     const char* lat  = nullptr;
+    double drop_rate = 0.0;
     PyObject *  lobj = nullptr, *lstr = nullptr;
-    if ( !PyArg_ParseTuple(args, "s|O", &name, &lobj) ) return -1;
+    if ( !PyArg_ParseTuple(args, "s|Od", &name, &lobj, &drop_rate) ) return -1;
 
     self->name   = gModel->addNamePrefix(name);
     self->no_cut = false;
+    self->drop_rate = drop_rate;
 
     if ( nullptr != lobj ) {
         lstr = PyObject_CallMethod(lobj, (char*)"__str__", nullptr);
@@ -72,14 +74,15 @@ linkConnect(PyObject* self, PyObject* args)
 
     PyObject *  c0, *c1;
     char *      port0, *port1;
+    double drop_0 = 0.0, drop_1 = 0.0;
     PyObject *  l0 = nullptr, *l1 = nullptr, *lstr0 = nullptr, *lstr1 = nullptr;
     const char *lat0 = nullptr, *lat1 = nullptr;
 
     LinkPy_t* link = (LinkPy_t*)self;
 
-    if ( !PyArg_ParseTuple(t0, "O!s|O", &PyModel_ComponentType, &c0, &port0, &l0) ) {
+    if ( !PyArg_ParseTuple(t0, "O!s|Od", &PyModel_ComponentType, &c0, &port0, &l0, &drop_0) ) {
         PyErr_Clear();
-        if ( !PyArg_ParseTuple(t0, "O!s|O", &PyModel_SubComponentType, &c0, &port0, &l0) ) { return nullptr; }
+        if ( !PyArg_ParseTuple(t0, "O!s|Od", &PyModel_SubComponentType, &c0, &port0, &l0, &drop_0) ) { return nullptr; }
     }
 
     if ( nullptr != l0 ) {
@@ -90,9 +93,9 @@ linkConnect(PyObject* self, PyObject* args)
     if ( nullptr == lat0 ) lat0 = link->latency;
 
 
-    if ( !PyArg_ParseTuple(t1, "O!s|O", &PyModel_ComponentType, &c1, &port1, &l1) ) {
+    if ( !PyArg_ParseTuple(t1, "O!s|Od", &PyModel_ComponentType, &c1, &port1, &l1, &drop_1) ) {
         PyErr_Clear();
-        if ( !PyArg_ParseTuple(t1, "O!s|O", &PyModel_SubComponentType, &c1, &port1, &l1) ) { return nullptr; }
+        if ( !PyArg_ParseTuple(t1, "O!s|Od", &PyModel_SubComponentType, &c1, &port1, &l1, &drop_1) ) { return nullptr; }
     }
 
     if ( nullptr != l1 ) {
@@ -107,6 +110,10 @@ linkConnect(PyObject* self, PyObject* args)
         return nullptr;
     }
 
+    if (drop_0 > 1.0 || drop_0 < 0.0 || drop_1 > 1.0 || drop_1 < 0.0) {
+        gModel->getOutput()->fatal(CALL_INFO, 1, "Invalid drop rate provided for link %s\n", link->name);
+    }
+
     ComponentId_t id0, id1;
     id0 = getComp(c0)->id;
     id1 = getComp(c1)->id;
@@ -114,8 +121,8 @@ linkConnect(PyObject* self, PyObject* args)
     gModel->getOutput()->verbose(
         CALL_INFO, 3, 0, "Connecting components %" PRIu64 " and %" PRIu64 " to Link %s (lat: %s %s)\n", id0, id1,
         ((LinkPy_t*)self)->name, lat0, lat1);
-    gModel->addLink(id0, link->name, port0, lat0, link->no_cut);
-    gModel->addLink(id1, link->name, port1, lat1, link->no_cut);
+    gModel->addLink(id0, link->name, port0, lat0, link->no_cut, drop_0);
+    gModel->addLink(id1, link->name, port1, lat1, link->no_cut, drop_1);
 
     Py_XDECREF(lstr0);
     Py_XDECREF(lstr1);

@@ -199,9 +199,10 @@ compAddLink(PyObject* self, PyObject* args)
     PyObject*   plink = nullptr;
     PyObject *  plat = nullptr, *lstr = nullptr;
     char*       port = nullptr;
+    double      drop_rate = 0.0;
     const char* lat  = nullptr;
 
-    if ( !PyArg_ParseTuple(args, "O!s|O", &PyModel_LinkType, &plink, &port, &plat) ) { return nullptr; }
+    if ( !PyArg_ParseTuple(args, "O!s|Od", &PyModel_LinkType, &plink, &port, &plat, &drop_rate) ) { return nullptr; }
     LinkPy_t* link = (LinkPy_t*)plink;
 
     if ( nullptr != plat ) {
@@ -213,7 +214,7 @@ compAddLink(PyObject* self, PyObject* args)
 
     gModel->getOutput()->verbose(
         CALL_INFO, 4, 0, "Connecting component %" PRIu64 " to Link %s (lat: %s)\n", id, link->name, lat);
-    gModel->addLink(id, link->name, port, lat, link->no_cut);
+    gModel->addLink(id, link->name, port, lat, link->no_cut, drop_rate);
 
     Py_XDECREF(lstr);
 

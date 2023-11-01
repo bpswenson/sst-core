@@ -84,8 +84,9 @@ Link::Link(LinkId_t tag) :
     type(UNINITIALIZED),
     mode(INIT),
     tag(tag),
+    drop_rate(0.0),
     profile_tools(nullptr)
-{}
+{ dist = std::uniform_real_distribution<double>(0.0, 1.0); }
 
 Link::Link() :
     send_queue(nullptr),
@@ -97,8 +98,9 @@ Link::Link() :
     type(UNINITIALIZED),
     mode(INIT),
     tag(-1),
+    drop_rate(0.0),
     profile_tools(nullptr)
-{}
+{ dist = std::uniform_real_distribution<double>(0.0, 1.0); }
 
 Link::~Link()
 {
@@ -139,6 +141,11 @@ Link::finalizeConfiguration()
     // finalizeConfiguration() on it since no one else has a pointer
     // to it
     if ( SYNC == pair_link->type ) pair_link->finalizeConfiguration();
+}
+
+void 
+Link::setDropRate(double rate) {
+    drop_rate = rate;
 }
 
 void
@@ -231,31 +238,48 @@ Link::replaceFunctor(Event::HandlerBase* functor)
 void
 Link::send_impl(SimTime_t delay, Event* event)
 {
-    if ( RUN != mode ) {
-        if ( INIT == mode ) {
-            Simulation_impl::getSimulation()->getSimulationOutput().fatal(
-                CALL_INFO, 1,
-                "ERROR: Trying to send or recv from link during initialization.  Send and Recv cannot be called before "
-                "setup.\n");
-        }
-        else if ( COMPLETE == mode ) {
-            Simulation_impl::getSimulation()->getSimulationOutput().fatal(
-                CALL_INFO, 1, "ERROR: Trying to call send or recv during complete phase.");
+    double pull = dist(generator);
+    bool dropped = false;
+    if(pull < drop_rate) {
+        dropped = true;
+    }
+    else {
+        if ( RUN != mode ) {
+            if ( INIT == mode ) {
+                Simulation_impl::getSimulation()->getSimulationOutput().fatal(
+                    CALL_INFO, 1,
+                    "ERROR: Trying to send or recv from link during initialization.  Send and Recv cannot be called before "
+                    "setup.\n");
+            }
+            else if ( COMPLETE == mode ) {
+                Simulation_impl::getSimulation()->getSimulationOutput().fatal(
+                    CALL_INFO, 1, "ERROR: Trying to call send or recv during complete phase.");
+            }
         }
     }
-    Cycle_t cycle = current_time + delay + latency;
+        Cycle_t cycle = current_time + delay + latency;
 
     if ( event == nullptr ) { event = new NullEvent(); }
     event->setDeliveryTime(cycle);
     event->setDeliveryInfo(tag, delivery_info);
 
 #if __SST_DEBUG_EVENT_TRACKING__
-    event->addSendComponent(comp, ctype, port);
-    event->addRecvComponent(pair_link->comp, pair_link->ctype, pair_link->port);
+    if(dropped) {
+        // TODO:  add dropped component information
+    }
+    else {
+        event->addSendComponent(comp, ctype, port);
+        event->addRecvComponent(pair_link->comp, pair_link->ctype, pair_link->port);
+    }
 #endif
-
-    if ( profile_tools ) profile_tools->eventSent(event);
-    send_queue->insert(event);
+    if(dropped) {
+        // TODO:  add profile_tools->eventDropped(event)
+        delete event;
+    }
+    else {
+        if ( profile_tools ) profile_tools->eventSent(event);
+        send_queue->insert(event);
+    }
 }
 
 

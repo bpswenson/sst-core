@@ -100,9 +100,9 @@ public: /* Public, but private.  Called only from Python functions */
 
     ConfigComponentMap_t& components() { return graph->getComponentMap(); }
 
-    void addLink(ComponentId_t id, const char* link_name, const char* port, const char* latency, bool no_cut) const
+    void addLink(ComponentId_t id, const char* link_name, const char* port, const char* latency, bool no_cut, double drop_rate) const
     {
-        graph->addLink(id, link_name, port, latency, no_cut);
+        graph->addLink(id, link_name, port, latency, no_cut, drop_rate);
     }
     void setLinkNoCut(const char* link_name) const { graph->setLinkNoCut(link_name); }
 

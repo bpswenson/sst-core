@@ -820,7 +820,7 @@ ConfigGraph::setStatisticLoadLevel(uint8_t loadLevel)
 void
 ConfigGraph::addLink(
     ComponentId_t comp_id, const std::string& link_name, const std::string& port, const std::string& latency_str,
-    bool no_cut)
+    bool no_cut, double drop_rate)
 {
     checkForValidLinkName(link_name);
 
@@ -847,6 +847,7 @@ ConfigGraph::addLink(
     link->component[index]   = comp_id;
     link->port[index]        = port;
     link->latency_str[index] = latency_str;
+    link->drop_rate[index]   = drop_rate;
     link->no_cut             = link->no_cut | no_cut;
 
     // Need to add this link to the ConfigComponent's link list.

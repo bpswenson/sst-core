@@ -16,6 +16,8 @@
 #include "sst/core/sst_types.h"
 #include "sst/core/timeConverter.h"
 
+#include <random>
+
 namespace SST {
 
 #define _LINK_DBG(fmt, args...) __DBG(DBG_LINK, Link, fmt, ##args)
@@ -258,6 +260,9 @@ private:
     Type_t     type;
     Mode_t     mode;
     LinkId_t   tag;
+    double     drop_rate;
+    std::uniform_real_distribution<double> dist;
+    std::default_random_engine generator;
 
     /** Create a new link with a given tag
 
@@ -283,6 +288,7 @@ private:
 
     /** Set minimum link latency */
     void setLatency(Cycle_t lat);
+    void setDropRate(double rate);
 
     void sendUntimedData_sync(Event* data);
     void finalizeConfiguration();
@@ -299,6 +305,8 @@ private:
     std::string ctype;
     std::string port;
 #endif
+
+
 };
 
 /** Self Links are links from a component to itself */

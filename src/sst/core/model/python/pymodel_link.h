@@ -28,6 +28,7 @@ struct LinkPy_t
     PyObject_HEAD char* name;
     bool                no_cut;
     char*               latency;
+    double              drop_rate;
 };
 
 extern PyTypeObject PyModel_LinkType;
