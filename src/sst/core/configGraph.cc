@@ -454,6 +454,11 @@ ConfigComponent::addStatisticParameter(
     cs->params.insert(param, value);
 }
 
+void 
+ConfigComponent::addPortModule(const std::string& port, const std::string& type, const Params& params) {
+    
+}
+
 void
 ConfigComponent::setStatisticParameters(const std::string& statisticName, const Params& params, bool recursively)
 {

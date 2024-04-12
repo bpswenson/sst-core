@@ -283,6 +283,8 @@ public:
     bool             reuseStatistic(const std::string& statisticName, StatisticId_t sid);
     void             addStatisticParameter(
                     const std::string& statisticName, const std::string& param, const std::string& value, bool recursively = false);
+    
+    void addPortModule(const std::string& port, const std::string& type, const Params& params);
     void setStatisticParameters(const std::string& statisticName, const Params& params, bool recursively = false);
     void setStatisticLoadLevel(uint8_t level, bool recursively = false);
 

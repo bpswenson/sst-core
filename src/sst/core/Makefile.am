@@ -52,6 +52,7 @@ nobase_dist_sst_HEADERS = \
 	output.h \
 	params.h \
 	pollingLinkQueue.h \
+	portModule.h \ 
 	profile.h \
 	profile/profiletool.h \
 	profile/clockHandlerProfileTool.h \
@@ -190,6 +191,7 @@ sst_core_sources = \
 	oneshot.cc \
 	output.cc \
 	params.cc \
+	portModule.cc \
 	pollingLinkQueue.cc \
 	profile/profiletool.cc \
 	profile/clockHandlerProfileTool.cc \

@@ -14,6 +14,7 @@
 
 #include "sst/core/event.h"
 #include "sst/core/sst_types.h"
+#include "sst/core/ssthandler.h"
 #include "sst/core/timeConverter.h"
 
 namespace SST {
@@ -22,16 +23,13 @@ namespace SST {
 
 class ActivityQueue;
 class BaseComponent;
+class PortModule;
 class TimeConverter;
 class LinkPair;
 class Simulation_impl;
 
 class UnitAlgebra;
 class LinkSendProfileToolList;
-
-namespace Profile {
-class EventHandlerProfileTool;
-}
 
 /** Link between two components. Carries events */
 class alignas(64) Link
@@ -278,7 +276,7 @@ private:
     void finalizeConfiguration();
     void prepareForComplete();
 
-    void addProfileTool(SST::Profile::EventHandlerProfileTool* tool, const EventHandlerMetaData& mdata);
+    void addProfileTool(SST::PortModule* tool, const EventHandlerMetaData& mdata);
 
 
     LinkSendProfileToolList* profile_tools;
