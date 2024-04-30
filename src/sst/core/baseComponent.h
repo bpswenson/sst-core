@@ -38,6 +38,7 @@ class Clock;
 class Link;
 class LinkMap;
 class Module;
+class PortModule;
 class Params;
 class Simulation_impl;
 class SubComponent;

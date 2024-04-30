@@ -34,6 +34,7 @@
 namespace SST {
 class Component;
 class Module;
+class PortModule;
 class SubComponent;
 class BaseComponent;
 namespace Partition {

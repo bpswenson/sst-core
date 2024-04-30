@@ -213,6 +213,26 @@ public:
 
 typedef SparseVectorMap<LinkId_t, ConfigLink*> ConfigLinkMap_t;
 
+class ConfigPortModule : public SST::Core::Serialization::serializable
+{
+public:
+    std::string type;
+    Params params;
+
+    ConfigPortModule() = default;
+    ConfigPortModule(const std::string& type, const Params& params) : 
+            type(type), params(params)
+    {}
+
+    void serialize_order(SST::Core::Serialization::serializer& ser) override
+    {
+        ser& type;
+        ser& params;
+    }    
+    ImplementSerializable(SST::ConfigPortModule)    
+
+};
+
 /** Represents the configuration of a generic component */
 class ConfigComponent : public SST::Core::Serialization::serializable
 {
@@ -231,6 +251,8 @@ public:
     uint8_t               statLoadLevel; /*!< Statistic load level for this component */
     // std::vector<ConfigStatistic>  enabledStatistics; /*!< List of subcomponents */
 
+    //TODO:  should be by an id, or something more interesting
+    std::map<std::string, std::vector<ConfigPortModule>> portModules;
     std::map<std::string, StatisticId_t> enabledStatNames;
     bool                                 enabledAllStats;
     ConfigStatistic                      allStatConfig;
@@ -313,6 +335,7 @@ public:
         ser& enabledStatNames;
         ser& enabledAllStats;
         ser& statistics;
+        ser& portModules;
         ser& enabledAllStats;
         ser& allStatConfig;
         ser& statLoadLevel;

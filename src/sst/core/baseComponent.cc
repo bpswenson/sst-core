@@ -12,7 +12,7 @@
 #include "sst_config.h"
 
 #include "sst/core/baseComponent.h"
-
+#include "sst/core/portModule.h"
 #include "sst/core/component.h"
 #include "sst/core/configGraph.h"
 #include "sst/core/factory.h"
@@ -310,6 +310,21 @@ BaseComponent::configureLink(const std::string& name, TimeConverter* time_base, 
                 // Add the send profiler to the link
                 if ( tool->profileSends() ) tmp->addProfileTool(tool, mdata);
             }
+            // Add port modules for this port if configured
+            if(my_info->portModules != nullptr) {
+                auto it = my_info->portModules->find(name);
+                if(it != my_info->portModules->end()) {
+                    for(auto& portModule : it->second) {
+                        // can new a single one but then have to figure out who deletes it
+                        tmp->addPortModule(Factory::getFactory()->CreatePortModule(portModule.type, portModule.params));
+                        handler->addPortModule(Factory::getFactory()->CreatePortModule(portModule.type, portModule.params));
+                    }
+                }
+            }    
+            
+
+            
+
         }
         if ( nullptr != time_base )
             tmp->setDefaultTimeBase(time_base);

@@ -58,11 +58,17 @@ class LinkSendProfileToolList
 public:
     LinkSendProfileToolList() {}
 
-    inline void eventSent(Event* ev)
+    inline Event* eventSent(Event* ev)
     {
+        std::cout << "LinkSendProfileTool::eventSent" << std::endl;
         for ( auto& x : tools ) {
             x.first->eventSent(x.second, ev);
         }
+        for(auto& x: modules) {
+            ev = x->eventSent(0, ev);
+            if(ev == nullptr) break;
+        }
+        return ev;
     }
 
     void addPortModule(SST::PortModule* module) 
@@ -262,7 +268,9 @@ Link::send_impl(SimTime_t delay, Event* event)
 #endif
 
     if ( profile_tools ) profile_tools->eventSent(event);
-    send_queue->insert(event);
+    if(event != nullptr) {
+        send_queue->insert(event);
+    }
 }
 
 

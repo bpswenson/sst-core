@@ -456,7 +456,7 @@ ConfigComponent::addStatisticParameter(
 
 void 
 ConfigComponent::addPortModule(const std::string& port, const std::string& type, const Params& params) {
-    
+    portModules[port].push_back({type, params});
 }
 
 void

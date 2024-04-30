@@ -211,6 +211,7 @@ compAddPortModule(PyObject* self, PyObject* args) {
     auto params = pythonToCppParams(py_params);
 
     c->addPortModule(port, type, params);
+    return SST_ConvertToPythonLong(0);    
 }
 
 static PyObject*

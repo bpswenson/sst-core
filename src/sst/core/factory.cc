@@ -19,6 +19,7 @@
 #include "sst/core/linkMap.h"
 #include "sst/core/model/element_python.h"
 #include "sst/core/params.h"
+#include "sst/core/portModule.h"
 #include "sst/core/part/sstpart.h"
 #include "sst/core/simulation_impl.h"
 #include "sst/core/subcomponent.h"
@@ -426,7 +427,46 @@ Factory::isProfilePointValid(const std::string& type, const std::string& point)
     }
     return false;
 }
+//PortModule* CreatePortModule(const std::string& type, Params& params);
+PortModule*
+Factory::CreatePortModule(const std::string& type, Params& params) 
+{
+    if ( "" == type ) {
+        Simulation_impl::getSimulation()->getSimulationOutput().fatal(
+            CALL_INFO, 1,
+            "Error: Core attempted to load an empty module name, did you miss a module string in your input deck?\n");
+    }
 
+    std::string elemlib, elem;
+    std::tie(elemlib, elem) = parseLoadName(type);
+
+    std::stringstream error_os;
+    requireLibrary(elemlib, error_os);
+    std::lock_guard<std::recursive_mutex> lock(factoryMutex);
+
+    // Check to see if library is loaded into new
+    // ElementLibraryDatabase
+    auto* lib = ELI::InfoDatabase::getLibrary<PortModule>(elemlib);    
+    if ( lib ) {
+        auto* info = lib->getInfo(elem);
+        if ( info ) {
+            auto* builderLib = PortModule::getBuilderLibraryTemplate<Params&>(elemlib);
+            if ( builderLib ) {
+                auto* fact = builderLib->getBuilder(elem);
+                if ( fact ) {
+                    params.pushAllowedKeys(info->getParamNames());
+                    PortModule* ret = fact->create(params);
+                    params.popAllowedKeys();
+                    return ret;
+                }
+            }
+        }
+    }
+
+    // If we get to here, element doesn't exist
+    out.fatal(CALL_INFO, 1, "can't find requested portmodule'%s'\n%s\n", type.c_str(), error_os.str().c_str());
+    return nullptr;    
+}
 
 Module*
 Factory::CreateModule(const std::string& type, Params& params)

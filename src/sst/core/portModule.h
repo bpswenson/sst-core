@@ -23,19 +23,15 @@ namespace SST {
     class PortModule {
     public:
         SST_ELI_DECLARE_BASE(PortModule)
-        SST_ELI_DECLARE_CTOR_EXTERN(const std::string&, Params&)
+        SST_ELI_DECLARE_CTORS(ELI_CTOR(SST::Params&))
         SST_ELI_DECLARE_INFO_EXTERN(ELI::ProvidesInterface, ELI::ProvidesParams)
-    
-        PortModule(const std::string& name);
+        PortModule() { }
         ~PortModule(){ }
 
-        virtual Event* eventSent(uintptr_t UNUSED(key), Event* ev) { return ev; }
-        virtual Event* eventReceived(Event* ev) { return ev; }
-
-        std::string getName() const { return name; }
+        virtual Event* eventSent(uintptr_t UNUSED(key), Event* ev) { std::cout << "PortModule::eventSent" << std::endl; return ev; }
+        virtual Event* eventReceived(Event* ev) { std::cout << "PortModule::eventReceived" << std::endl; return ev; }
 
     protected:
-        const std::string name;
     };
 }
 
@@ -44,11 +40,11 @@ namespace SST {
 // it
 #define SST_ELI_REGISTER_PORTMODULE_API(cls, ...)            \
     SST_ELI_DECLARE_NEW_BASE(SST::PortModule,::cls) \
-    SST_ELI_NEW_BASE_CTOR(const std::string&,##__VA_ARGS__)
+    SST_ELI_NEW_BASE_CTOR(SST::Params&,##__VA_ARGS__)
 
 #define SST_ELI_REGISTER_PORTMODULE_DERIVED_API(cls, base, ...) \
     SST_ELI_DECLARE_NEW_BASE(::base,::cls)                       \
-    SST_ELI_NEW_BASE_CTOR(const std::string&,##__VA_ARGS__)
+    SST_ELI_NEW_BASE_CTOR(SST::Params&,##__VA_ARGS__)
 
 #define SST_ELI_REGISTER_PORTMODULE(cls, interface, lib, name, version, desc)          \
     SST_ELI_REGISTER_DERIVED(::interface,cls,lib,name,ELI_FORWARD_AS_ONE(version),desc) \

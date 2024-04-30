@@ -30,6 +30,7 @@ class StatisticBase;
 
 class Module;
 class Component;
+class PortModule;
 class BaseComponent;
 class SubComponent;
 class ElemLoader;
@@ -74,6 +75,9 @@ public:
      * @param params - Parameters to pass to the Module's constructor
      */
     Module* CreateModule(const std::string& type, Params& params);
+
+
+    PortModule* CreatePortModule(const std::string& type, Params& params);
 
     /** Instantiate a new Module
      * @param type - Fully qualified elementlibname.modulename type
