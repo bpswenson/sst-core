@@ -17,6 +17,7 @@
 #include "sst/core/factory.h"
 #include "sst/core/initQueue.h"
 #include "sst/core/pollingLinkQueue.h"
+#include "sst/core/profile/eventHandlerProfileTool.h"
 #include "sst/core/portModule.h"
 #include "sst/core/simulation_impl.h"
 #include "sst/core/ssthandler.h"
@@ -64,14 +65,20 @@ public:
         }
     }
 
-    void addProfileTool(SST::PortModule* tool, const EventHandlerMetaData& mdata)
+    void addPortModule(SST::PortModule* module) 
+    {
+        modules.push_back(module);
+    }
+
+    void addProfileTool(SST::Profile::EventHandlerProfileTool* tool, const EventHandlerMetaData& mdata)
     {
         auto key = tool->registerHandler(mdata);
         tools.push_back(std::make_pair(tool, key));
     }
 
 private:
-    std::vector<std::pair<SST::PortModule*, uintptr_t>> tools;
+    std::vector<std::pair<SST::Profile::EventHandlerProfileTool*, uintptr_t>> tools;
+    std::vector<SST::PortModule*> modules;
 };
 
 Link::Link(LinkId_t tag) :
@@ -351,7 +358,13 @@ Link::getDefaultTimeBase() const
 }
 
 void
-Link::addProfileTool(SST::PortModule* tool, const EventHandlerMetaData& mdata)
+Link::addPortModule(SST::PortModule* module) {
+    if ( !profile_tools ) profile_tools = new LinkSendProfileToolList();
+    profile_tools->addPortModule(module);
+}
+
+void
+Link::addProfileTool(SST::Profile::EventHandlerProfileTool* tool, const EventHandlerMetaData& mdata)
 {
     if ( !profile_tools ) profile_tools = new LinkSendProfileToolList();
     profile_tools->addProfileTool(tool, mdata);

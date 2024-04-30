@@ -22,7 +22,7 @@ namespace SST {
 namespace Profile {
 
 
-EventHandlerProfileTool::EventHandlerProfileTool(const std::string& name, Params& params) : PortModule(name, params)
+EventHandlerProfileTool::EventHandlerProfileTool(const std::string& name, Params& params) : HandlerProfileToolAPI(name)
 {
     std::string level = params.find<std::string>("level", "type");
     if ( level == "global" )
@@ -88,11 +88,10 @@ EventHandlerProfileToolCount::handlerStart(uintptr_t key)
     reinterpret_cast<event_data_t*>(key)->recv_count++;
 }
 
-bool
+void
 EventHandlerProfileToolCount::eventSent(uintptr_t key, Event* UNUSED(ev))
 {
     reinterpret_cast<event_data_t*>(key)->send_count++;
-    return true;
 }
 
 

@@ -14,7 +14,6 @@
 
 #include "sst/core/eli/elementinfo.h"
 #include "sst/core/event.h"
-#include "sst/core/portModule.h"
 #include "sst/core/sst_types.h"
 #include "sst/core/ssthandler.h"
 #include "sst/core/warnmacros.h"
@@ -27,10 +26,10 @@ namespace SST {
 namespace Profile {
 
 
-class EventHandlerProfileTool : public PortModule
+class EventHandlerProfileTool : public HandlerProfileToolAPI
 {
 public:
-    SST_ELI_REGISTER_PROFILETOOL_DERIVED_API(SST::Profile::EventHandlerProfileTool, SST::PortModule, Params&)
+    SST_ELI_REGISTER_PROFILETOOL_DERIVED_API(SST::Profile::EventHandlerProfileTool, SST::HandlerProfileToolAPI, Params&)
 
     SST_ELI_DOCUMENT_PARAMS(
         { "level", "Level at which to track profile (global, type, component, subcomponent)", "type" },
@@ -42,6 +41,8 @@ public:
     enum class Profile_Level { Global, Type, Component, Subcomponent };
 
     EventHandlerProfileTool(const std::string& name, Params& params);
+
+    virtual void eventSent(uintptr_t UNUSED(key), Event* UNUSED(ev)) {}
 
     bool profileSends() { return profile_sends_; }
     bool profileReceives() { return profile_receives_; }
@@ -88,7 +89,7 @@ public:
     uintptr_t registerHandler(const HandlerMetaData& mdata) override;
 
     void handlerStart(uintptr_t key) override;
-    bool eventSent(uintptr_t UNUSED(key), Event* UNUSED(ev)) override;
+    void eventSent(uintptr_t UNUSED(key), Event* UNUSED(ev)) override;
 
     void outputData(FILE* fp) override;
 
@@ -129,7 +130,7 @@ public:
         entry->recv_count++;
     }
 
-    bool eventSent(uintptr_t key, Event* UNUSED(ev)) override { reinterpret_cast<event_data_t*>(key)->send_count++; return true;}
+    void eventSent(uintptr_t key, Event* UNUSED(ev)) override { reinterpret_cast<event_data_t*>(key)->send_count++; }
 
     void outputData(FILE* fp) override;
 

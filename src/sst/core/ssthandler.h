@@ -15,9 +15,12 @@
 #include "sst/core/profile/profiletool.h"
 #include "sst/core/sst_types.h"
 
+
 namespace SST {
 
 class Params;
+class Event;
+class PortModule;
 
 /**
    Just a tag class for the various metadata that will need to be
@@ -104,10 +107,17 @@ protected:
             for ( auto& x : tools )
                 x.first->handlerStart(x.second);
         }
+
+        Event* eventReceived(Event* ev);
+
         void handlerEnd()
         {
             for ( auto& x : tools )
                 x.first->handlerEnd(x.second);
+        }
+
+        void addPortModule(PortModule* module) {
+            modules.push_back(module);
         }
 
         /**
@@ -123,6 +133,7 @@ protected:
         HandlerId_t getId() { return my_id; }
 
     private:
+        std::vector<PortModule*> modules;
         std::vector<std::pair<HandlerProfileToolAPI*, uintptr_t>> tools;
     };
 
@@ -136,6 +147,11 @@ public:
     virtual ~SSTHandlerBaseProfile()
     {
         if ( profile_tools ) delete profile_tools;
+    }
+
+    void addPortModule(PortModule* module) {
+        if(!profile_tools) profile_tools = new HandlerProfileToolList();
+        profile_tools->addPortModule(module);
     }
 
     void addProfileTool(HandlerProfileToolAPI* tool, const HandlerMetaData& mdata)
@@ -186,6 +202,29 @@ public:
             return ret;
         }
         return operator_impl(arg);
+    }
+};
+
+template<>
+class SSTHandlerBase<void, Event*> : public SSTHandlerBaseProfile
+{
+    // Implementation of operator() to be done in child classes
+    virtual void operator_impl(Event*) = 0;
+public:
+    ~SSTHandlerBase() {}
+
+    inline void operator()(Event* arg)
+    {
+        if ( profile_tools ) {
+            profile_tools->handlerStart();
+            auto ret = profile_tools->eventReceived(arg);
+            if(ret != nullptr) {
+                operator_impl(ret);
+            }
+            profile_tools->handlerEnd();
+            return;
+        }
+        operator_impl(arg);
     }
 };
 

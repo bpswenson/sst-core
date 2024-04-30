@@ -14,6 +14,7 @@
 #include "sst/core/ssthandler.h"
 
 #include "sst/core/sst_types.h"
+#include "sst/core/portModule.h"
 
 #include <atomic>
 #include <cstdio>
@@ -26,5 +27,16 @@ SSTHandlerBaseProfile::HandlerProfileToolList::HandlerProfileToolList()
 {
     my_id = id_counter.fetch_add(1);
 }
+
+
+Event* SSTHandlerBaseProfile::HandlerProfileToolList::eventReceived(Event* ev) 
+{
+            for( auto& x : modules ) {
+                ev = x->eventReceived(ev);
+                if(ev == nullptr) break;
+            }
+            return ev;
+        }
+
 
 } // namespace SST
