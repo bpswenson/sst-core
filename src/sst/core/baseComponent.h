@@ -887,7 +887,8 @@ private:
     Link* getLinkFromParentSharedPort(const std::string& port);
 
     using StatNameMap = std::map<std::string, std::map<std::string, Statistics::StatisticBase*>>;
-
+    
+    std::vector<PortModule*> portModules;
     std::map<StatisticId_t, Statistics::StatisticBase*> m_explicitlyEnabledSharedStats;
     std::map<StatisticId_t, StatNameMap>                m_explicitlyEnabledUniqueStats;
     StatNameMap                                         m_enabledAllStats;

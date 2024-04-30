@@ -26,7 +26,7 @@ namespace SST {
         SST_ELI_DECLARE_CTORS(ELI_CTOR(SST::Params&))
         SST_ELI_DECLARE_INFO_EXTERN(ELI::ProvidesInterface, ELI::ProvidesParams)
         PortModule() { }
-        ~PortModule(){ }
+        virtual ~PortModule(){ }
 
         virtual Event* eventSent(uintptr_t UNUSED(key), Event* ev) { std::cout << "PortModule::eventSent" << std::endl; return ev; }
         virtual Event* eventReceived(Event* ev) { std::cout << "PortModule::eventReceived" << std::endl; return ev; }

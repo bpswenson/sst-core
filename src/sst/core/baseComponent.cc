@@ -84,6 +84,9 @@ BaseComponent::~BaseComponent()
                 "Warning:  BaseComponent destructor failed to remove ComponentInfo from parent.\n");
         }
     }
+    for(auto port : portModules) {
+        delete port;
+    }
 }
 
 void
@@ -315,16 +318,13 @@ BaseComponent::configureLink(const std::string& name, TimeConverter* time_base, 
                 auto it = my_info->portModules->find(name);
                 if(it != my_info->portModules->end()) {
                     for(auto& portModule : it->second) {
-                        // can new a single one but then have to figure out who deletes it
-                        tmp->addPortModule(Factory::getFactory()->CreatePortModule(portModule.type, portModule.params));
-                        handler->addPortModule(Factory::getFactory()->CreatePortModule(portModule.type, portModule.params));
+                        auto* pm = Factory::getFactory()->CreatePortModule(portModule.type, portModule.params);
+                        tmp->addPortModule(pm);
+                        handler->addPortModule(pm);
+                        portModules.push_back(pm);
                     }
                 }
             }    
-            
-
-            
-
         }
         if ( nullptr != time_base )
             tmp->setDefaultTimeBase(time_base);
