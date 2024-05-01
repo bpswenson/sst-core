@@ -28,14 +28,14 @@ namespace SST {
         PortModule() { }
         virtual ~PortModule(){ }
 
-        virtual Event* eventSent(uintptr_t UNUSED(key), Event* ev) { std::cout << "PortModule::eventSent" << std::endl; return ev; }
-        virtual Event* eventReceived(Event* ev) { std::cout << "PortModule::eventReceived" << std::endl; return ev; }
+        virtual Event* eventSent(uintptr_t UNUSED(key), Event* ev) { return ev; }
+        virtual Event* eventReceived(Event* ev) { return ev; }
 
     protected:
     };
 }
 
-// Register profile tools.  Must register an interface
+// Register port module tools.  Must register an interface
 // (API) first, then you can register a subcomponent that implements
 // it
 #define SST_ELI_REGISTER_PORTMODULE_API(cls, ...)            \
