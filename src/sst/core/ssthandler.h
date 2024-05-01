@@ -217,7 +217,6 @@ public:
     {
         if ( profile_tools ) {
             profile_tools->handlerStart();
-            std::cout << "Handler operatator()" << std::endl;
             auto ret = profile_tools->eventReceived(arg);
             if(ret != nullptr) {
                 operator_impl(ret);

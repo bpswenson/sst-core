@@ -31,7 +31,6 @@ SSTHandlerBaseProfile::HandlerProfileToolList::HandlerProfileToolList()
 
 Event* SSTHandlerBaseProfile::HandlerProfileToolList::eventReceived(Event* ev) 
 {
-    std::cout << "HandlerProfileToolList::eventReceived" << std::endl;
     for( auto& x : modules ) {
         ev = x->eventReceived(ev);
         if(ev == nullptr) break;

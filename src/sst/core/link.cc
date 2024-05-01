@@ -60,7 +60,6 @@ public:
 
     inline Event* eventSent(Event* ev)
     {
-        std::cout << "LinkSendProfileTool::eventSent" << std::endl;
         for ( auto& x : tools ) {
             x.first->eventSent(x.second, ev);
         }

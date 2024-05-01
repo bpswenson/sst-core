@@ -8,7 +8,7 @@ RandomDropPortModule::RandomDropPortModule(Params& params) : rng(7, 13) {
     uint32_t z_seed = params.find<uint32_t>("rngseed", 7);
     rng.restart(z_seed, 13);
 
-    m_drop_prob = params.find<double>("drop_prop", 0.01);
+    m_drop_prob = params.find<double>("drop_prob", 0.01);
     m_verbose = params.find<bool>("verbose", false);
     m_drop_on_send = params.find<bool>("drop_on_send");
 
@@ -16,11 +16,18 @@ RandomDropPortModule::RandomDropPortModule(Params& params) : rng(7, 13) {
 
 Event* RandomDropPortModule::eventSent(uintptr_t UNUSED(key), Event* ev) { 
     if(m_drop_on_send) {
-        if(rng.nextUniform() < m_drop_prob) {
+        double pull = rng.nextUniform();
+
+        if(pull < m_drop_prob) {
             if(m_verbose) { 
-                std::cout << "Dropping event" << std::endl;
+                std::cout << "Dropping event on send" << std::endl;
             }
             return nullptr;
+        }
+        else {
+            if(m_verbose) {
+                std::cout << "PULL: " << pull << " PROB: " << m_drop_prob << std::endl;
+            }
         }
     }
     return ev;
@@ -28,11 +35,18 @@ Event* RandomDropPortModule::eventSent(uintptr_t UNUSED(key), Event* ev) {
 
 Event* RandomDropPortModule::eventReceived(Event* ev) { 
     if(!m_drop_on_send) {
-        if(rng.nextUniform() < m_drop_prob) {
+        double pull = rng.nextUniform();
+
+        if(pull < m_drop_prob) {
             if(m_verbose) { 
-                std::cout << "Dropping event" << std::endl;
+                std::cout << "Dropping event on receive" << std::endl;
             }
             return nullptr;
+        }
+        else {
+            if(m_verbose) {
+                std::cout << "PULL: " << pull << " PROB: " << m_drop_prob << std::endl;
+            }
         }
     }
     return ev;

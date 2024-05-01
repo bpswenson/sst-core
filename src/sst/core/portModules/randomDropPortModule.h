@@ -31,7 +31,7 @@ namespace PortModules {
         )
         //TODO Need stats
         SST_ELI_DOCUMENT_PARAMS(
-            { "drop_prop", "Probably to drop event", "0.01" },
+            { "drop_prob", "Probably to drop event", "0.01" },
             { "drop_on_send",  "Controls whether to drop packetes during the send versus the default of on the receive", "false" },
             { "rngseed", "Set a seed for the random number generator used to control drops", "7" },
             { "verbose", "Debugging output", "false"}
