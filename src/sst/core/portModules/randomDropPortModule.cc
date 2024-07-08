@@ -21,6 +21,7 @@ Event* RandomDropPortModule::eventSent(uintptr_t UNUSED(key), Event* ev) {
         if(pull < m_drop_prob) {
             if(m_verbose) { 
                 std::cout << "Dropping event on send" << std::endl;
+                std::cout << "PULL: " << pull << " PROB: " << m_drop_prob << std::endl;
             }
             return nullptr;
         }
@@ -40,6 +41,7 @@ Event* RandomDropPortModule::eventReceived(Event* ev) {
         if(pull < m_drop_prob) {
             if(m_verbose) { 
                 std::cout << "Dropping event on receive" << std::endl;
+                std::cout << "PULL: " << pull << " PROB: " << m_drop_prob << std::endl;
             }
             return nullptr;
         }

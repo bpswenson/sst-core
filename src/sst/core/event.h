@@ -57,8 +57,58 @@ public:
 
          new Event::Handler<classname, dataT>(this, &classname::function_name, data)
      */
-    template <typename classT, typename dataT = void>
-    using Handler = SSTHandler<void, Event*, classT, dataT>;
+
+    template<typename classT, typename dataT = void, typename Enable = void>
+    class Handler;
+
+    template<typename classT, typename dataT>
+    class Handler<classT, dataT, typename std::enable_if<!std::is_void<dataT>::value>::type> : public SSTHandler<void, Event*, classT, dataT> {
+        typedef void (classT::*PtrMember)(Event*, dataT);
+    public:
+        Handler(classT* const object, PtrMember member, dataT data) :
+            SSTHandler<void, Event*, classT, dataT>(object, member, data) {}
+
+        using SSTHandler<void, Event*, classT, dataT>::profile_tools; 
+
+        inline void operator()(Event* arg)
+        {
+            if ( profile_tools ) {
+                profile_tools->handlerStart();
+                auto ret = profile_tools->eventReceived(arg);
+                if(ret != nullptr) {
+                    SSTHandler<void, Event*, classT, dataT>::operator_impl(ret);
+                }
+                profile_tools->handlerEnd();
+                return;
+            }
+            SSTHandler<void, Event*, classT, dataT>::operator_impl(arg);
+        }
+    };
+
+    // Specialization for when dataT is void
+    template <typename classT>
+    class Handler<classT, void> : public SSTHandler<void, Event*, classT> {
+        typedef void (classT::*PtrMember)(Event*);
+    public:
+        Handler(classT* const object, PtrMember member) :
+            SSTHandler<void, Event*, classT, void>(object, member) {}
+
+        using SSTHandler<void, Event*, classT, void>::profile_tools; 
+
+        inline void operator()(Event* arg)
+        {
+            if ( profile_tools ) {
+                profile_tools->handlerStart();
+                auto ret = profile_tools->eventReceived(arg);
+                if(ret != nullptr) {
+                    SSTHandler<void, Event*, classT, void>::operator_impl(ret);
+                }
+                profile_tools->handlerEnd();
+                return;
+            }
+            SSTHandler<void, Event*, classT, void>::operator_impl(arg);
+        }            
+    };
 
     /** Type definition of unique identifiers */
     typedef std::pair<uint64_t, int> id_type;

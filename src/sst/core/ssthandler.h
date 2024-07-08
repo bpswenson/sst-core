@@ -204,7 +204,7 @@ public:
         return operator_impl(arg);
     }
 };
-
+/*
 template<>
 class SSTHandlerBase<void, Event*> : public SSTHandlerBaseProfile
 {
@@ -227,7 +227,7 @@ public:
         operator_impl(arg);
     }
 };
-
+*/
 
 template <typename argT>
 class SSTHandlerBase<void, argT> : public SSTHandlerBaseProfile
@@ -257,7 +257,7 @@ public:
 template <typename returnT, typename argT, typename classT, typename dataT = void>
 class SSTHandler : public SSTHandlerBase<returnT, argT>
 {
-private:
+protected:
     typedef returnT (classT::*PtrMember)(argT, dataT);
     classT*         object;
     const PtrMember member;
